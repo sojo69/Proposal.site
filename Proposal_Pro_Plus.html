@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proposal Pro+</title>
+<style>
+body{
+margin:0;overflow:hidden;height:100vh;
+font-family:Segoe UI,Arial,sans-serif;
+background:linear-gradient(135deg,#ff7eb3,#ff9ac6,#ffc2d9,#ffd6e7);
+background-size:400% 400%;
+animation:bg 12s ease infinite;
+}
+@keyframes bg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.card{
+position:absolute;left:50%;top:50%;
+transform:translate(-50%,-50%);
+background:rgba(255,255,255,.92);
+padding:30px;border-radius:28px;
+text-align:center;width:min(90%,560px);
+box-shadow:0 20px 50px rgba(0,0,0,.18);
+}
+
+h1{color:#ff3f86;font-size:3rem;margin:0}
+.buttons{
+display:flex;
+justify-content:center;
+gap:12px;
+margin-top:18px;
+}
+
+button{
+padding:14px 24px;
+border:none;border-radius:14px;
+font-size:18px;cursor:pointer;
+}
+#yes{background:#ff4d8d;color:white}
+#no{
+background:#666;color:white;
+position:fixed;
+transition:left .45s ease,top .45s ease,transform .3s ease;
+}
+
+.heart{
+position:fixed;
+pointer-events:none;
+font-size:28px;
+animation:rise 7s linear forwards;
+}
+@keyframes rise{
+0%{transform:translateY(0) scale(.6);opacity:0}
+10%{opacity:1}
+100%{transform:translateY(-700px) scale(1.4) rotate(20deg);opacity:0}
+}
+
+#result{margin-top:18px;color:#ff3f86;font-size:22px;font-weight:bold}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h1>❤️ I Love You ❤️</h1>
+<p>You make every day brighter.</p>
+
+<div class="buttons">
+<button id="yes" onclick="yesClick()">Yes 💖</button>
+</div>
+
+<div id="result"></div>
+</div>
+
+<button id="no">No 😅</button>
+
+<script>
+const no=document.getElementById("no");
+const yes=document.getElementById("yes");
+
+function placeNoBesideYes(){
+ const r=yes.getBoundingClientRect();
+ no.style.left=(r.left-120)+"px";
+ no.style.top=(r.top)+"px";
+}
+setTimeout(placeNoBesideYes,200);
+window.addEventListener('resize',placeNoBesideYes);
+
+// Music (browser policies may require interaction on some devices)
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let ctx;
+
+function startMusic(){
+ try{
+  if(!ctx) ctx=new AudioCtx();
+  const melody=[523,659,784,1046,784,659];
+  let i=0;
+  setInterval(()=>{
+   const o=ctx.createOscillator();
+   const g=ctx.createGain();
+   o.frequency.value=melody[i++%melody.length];
+   o.type="sine";
+   o.connect(g); g.connect(ctx.destination);
+   g.gain.value=0.03;
+   o.start();
+   g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.45);
+   o.stop(ctx.currentTime+0.45);
+  },550);
+ }catch(e){}
+}
+window.addEventListener("load",startMusic);
+
+function moveNo(){
+ if(ctx){
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.frequency.value=850;
+  o.connect(g); g.connect(ctx.destination);
+  g.gain.value=0.03;
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.08);
+  o.stop(ctx.currentTime+0.08);
+ }
+ no.style.left=(Math.random()*(innerWidth-140))+"px";
+ no.style.top=(Math.random()*(innerHeight-80))+"px";
+}
+no.addEventListener("mouseover",moveNo);
+no.addEventListener("touchstart",e=>{e.preventDefault();moveNo();});
+
+function spawnHeart(x,y){
+ const h=document.createElement("div");
+ h.className="heart";
+ h.textContent=["❤️","💖","💕","💗","💘"][Math.floor(Math.random()*5)];
+ h.style.left=(x+(Math.random()*200-100))+"px";
+ h.style.top=(y+(Math.random()*80-40))+"px";
+ document.body.appendChild(h);
+ setTimeout(()=>h.remove(),7000);
+}
+
+function yesClick(){
+ const r=yes.getBoundingClientRect();
+ document.getElementById("result").innerHTML="💍 Thank You! 💖";
+ for(let i=0;i<120;i++){
+   setTimeout(()=>{
+     spawnHeart(r.left+r.width/2,r.top);
+   },i*80);
+ }
+}
+</script>
+</body>
+</html>
